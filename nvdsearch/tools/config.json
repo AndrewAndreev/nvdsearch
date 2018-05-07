@@ -1,0 +1,9 @@
+{
+  "nvd_path": "db",
+  "mysql": {
+    "host": "localhost",
+    "user": "qt_user",
+    "password": "0000",
+    "db": "nvdb"
+  }
+}
