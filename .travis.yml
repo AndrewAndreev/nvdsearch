@@ -1,0 +1,17 @@
+sudo: required
+dist: trusty
+
+before_install:
+  - sudo add-apt-repository --yes ppa:beineri/opt-qt-5.10.1-trusty
+  - sudo apt-get -qq update
+
+install:
+  - sudo apt-get -y install qt510-meta-minimal
+  - sudo apt-get -y install qt510quickcontrols2
+
+script:
+  - source /opt/qt510/bin/qt510-env.sh
+  - cd qt
+  - /opt/qt510/bin/qmake -project
+  - /opt/qt510/bin/qmake nvdsearch.pro
+  - make
