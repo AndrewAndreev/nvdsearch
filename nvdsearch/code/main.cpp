@@ -1,14 +1,12 @@
 #include <QApplication>
-#include "ui/cvesearchwidget.h"
+#include "ui/nvdsearchwidget.h"
 
 int main( int argc, char *argv[] )
 {
   QApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
   QApplication app( argc, argv );
 
-  Database database;
-  database.setConnection();
-  CveSearchWidget widget( nullptr, database );
+  NvdSearchWidget widget;
   widget.show();
 
   return app.exec();

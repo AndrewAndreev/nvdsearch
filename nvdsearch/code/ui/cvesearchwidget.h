@@ -1,6 +1,7 @@
 #ifndef CVESEARCHWIDGET_H
 #define CVESEARCHWIDGET_H
 
+#include <QComboBox>
 #include <QDateTimeEdit>
 #include <QDoubleSpinBox>
 #include <QGridLayout>
@@ -24,8 +25,12 @@ public slots:
   void applyFilters();
 
 private:
+  void setupTableHeaders();
+
   QGridLayout *_grid;
   QLineEdit *_search_field;
+  QLabel *_cvssv_label;
+  QComboBox *_cvssv_combo;
 
   QLabel *_min_date_label;
   QLabel *_max_date_label;
@@ -41,7 +46,16 @@ private:
 
   QPushButton *_reset_filters_button;
   QPushButton *_apply_filters_button;
+  QStringList _headers{ "Cve name", "Severity", "CVSSV", "Published date" };
+  QStringList _db_columns{ "cve_name", "base_score", "version",
+                           "published_date" };
   QTableWidget *_cve_table;
+
+  const QChar _arrow_up = QChar( 0x2191 );
+  const QChar _arrow_down = QChar( 0x2193 );
+
+  Qt::SortOrder _sort_order = Qt::AscendingOrder;
+  int _header_sort = 3;  // Default sorting is an ascending by Published date
 
   Database &_database;
   Cves _found_cves;

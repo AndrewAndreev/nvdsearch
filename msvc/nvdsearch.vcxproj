@@ -16,10 +16,12 @@
     <ClCompile Include="..\nvdsearch\code\main.cpp" />
     <ClCompile Include="..\nvdsearch\code\ui\cvesearchwidget.cpp" />
     <ClCompile Include="..\nvdsearch\code\ui\cvewidget.cpp" />
+    <ClCompile Include="..\nvdsearch\code\ui\nvdsearchwidget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\nvdsearch\code\data\cve.h" />
     <ClInclude Include="..\nvdsearch\code\data\database.h" />
+    <QtMoc Include="..\nvdsearch\code\ui\nvdsearchwidget.h" />
     <QtMoc Include="..\nvdsearch\code\ui\cvesearchwidget.h" />
     <QtMoc Include="..\nvdsearch\code\ui\cvewidget.h" />
   </ItemGroup>

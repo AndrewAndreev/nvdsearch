@@ -4,7 +4,7 @@
 #include <QDateTime>
 #include <QString>
 
-enum CVSS { V2 = 2, V3 = 3 };
+enum CVSS { ANY = 0, V2 = 2, V3 = 3 };
 
 class Cve
 {
