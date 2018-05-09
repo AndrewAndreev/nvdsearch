@@ -29,6 +29,9 @@
     <ClCompile Include="..\nvdsearch\code\ui\cvewidget.cpp">
       <Filter>code\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\nvdsearch\code\ui\cvesearchwidget.cpp">
+      <Filter>code\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\nvdsearch\code\data\cve.h">
@@ -40,6 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="..\nvdsearch\code\ui\cvewidget.h">
+      <Filter>code\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="..\nvdsearch\code\ui\cvesearchwidget.h">
       <Filter>code\ui</Filter>
     </QtMoc>
   </ItemGroup>

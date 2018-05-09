@@ -62,9 +62,7 @@ CveWidget::CveWidget( QWidget *parent ) : QWidget( parent )
   _grid->addWidget( _cve_name, 0, 0, 1, 2, Qt::AlignLeft );
   _grid->addWidget( _severity_circle, 0, 2 );
 
-  //this->setStyleSheet( "background-color: #fff;" );
-  this->setLayout( _grid );
-  this->setMinimumSize( 640, 480 );  // Default minimum size.
+  setLayout( _grid );
 }
 
 CveWidget::~CveWidget()

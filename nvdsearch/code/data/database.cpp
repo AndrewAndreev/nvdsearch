@@ -58,10 +58,11 @@ bool Database::setConnection( const QString &hostname, const QString &dbname,
   return isValid();
 }
 
-Cves Database::getCves( QDateTime first_date, QDateTime last_date,
-                        qreal lowest_severity, qreal heighest_severity,
-                        CVSS severity_version, QString query_tables,
-                        QString query_parameters, int limit )
+Cves Database::getCves( QString cve_name_filter, QDateTime first_date,
+                        QDateTime last_date, qreal lowest_severity,
+                        qreal heighest_severity, CVSS severity_version,
+                        QString query_tables, QString query_parameters,
+                        int limit )
 {
   QSqlDatabase db = QSqlDatabase::database( _connection_name );
   if ( isValid() == false )
@@ -96,14 +97,16 @@ Cves Database::getCves( QDateTime first_date, QDateTime last_date,
           "where published_date between '%2' and '%3'\n"
           "and severity.version in %4\n"
           "and severity.base_score >= %5 and severity.base_score <= %6\n"
-          "%7\n"
-          "limit %8;" )
+          "and cve_name like '%7'\n"
+          "%8\n"
+          "limit %9;" )
           .arg( query_tables )
           .arg( s_first_date )
           .arg( s_last_date )
           .arg( s_severity_version )
           .arg( s_lowest_severity )
           .arg( s_heighest_severity )
+          .arg( "%" + cve_name_filter + "%" )
           .arg( query_parameters )
           .arg( limit );
   query.prepare( s_query );
@@ -141,7 +144,7 @@ Cves Database::getProductCves( QString product_name, QDateTime first_date,
   auto query_p = QString( "and product.product_name like '%1'\n%2" )
                      .arg( product_name )
                      .arg( query_parameters );
-  return getCves( first_date, last_date, lowest_severity, heighest_severity,
+  return getCves( "", first_date, last_date, lowest_severity, heighest_severity,
                   severity_version, query_t, query_p, limit );
 }
 
@@ -157,7 +160,7 @@ Cves Database::getVendorCves( QString vendor_name, QDateTime first_date,
   auto query_p = QString( "and product.product_name like '%1'\n%2" )
                      .arg( vendor_name )
                      .arg( query_parameters );
-  return getCves( first_date, last_date, lowest_severity, heighest_severity,
+  return getCves( "", first_date, last_date, lowest_severity, heighest_severity,
                   severity_version, query_t, query_p, limit );
 }
 

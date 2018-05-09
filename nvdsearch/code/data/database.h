@@ -25,7 +25,8 @@ public:
   // CVSS = CVSS::V2, CVSS::V3
   // query_tables and query_parameters inserts into query before and after
   // where statement accordingly.
-  Cves getCves( QDateTime first_date = QDateTime(),
+  Cves getCves( QString cve_name_filter = "",
+                QDateTime first_date = QDateTime(),
                 QDateTime last_date = QDateTime(), qreal lowest_severity = -1.0,
                 qreal heighest_severity = -1.0,
                 CVSS severity_version = ( CVSS )0, QString query_tables = "",

@@ -22,6 +22,7 @@ public:
   void setAdditionalInfo( QStringList &product_names, QStringList &vendor_names,
                           QStringList &references );
 
+  int id() const;
   QString cveName() const;
   qreal severity() const;
   CVSS scoreVersion() const;

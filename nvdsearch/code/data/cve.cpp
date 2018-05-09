@@ -67,6 +67,11 @@ void Cve::setAdditionalInfo( QStringList &product_names,
   _hasAdditional = true;
 }
 
+int Cve::id() const
+{
+  return _id_cve;
+}
+
 QString Cve::cveName() const
 {
   return _cve_name;
