@@ -91,29 +91,12 @@ class Downloader:
         p.close()
         p.join()
     
-class DataRefactor:
-    def __init__(self, db_path=None):
-        self.dbs = {}
-        self.db_path = os.path.join(os.path.dirname(__file__), 'db')
-        if db_path:
-            self.db_path = db_path
     
-    def load(self):
-        root, _, files = next(os.walk(self.db_path))
-        for file in files:
-            filepath = os.path.join(root, file)
-            with open(filepath, encoding="utf8") as f:
-                year = int(file.split('-')[-1].split('.')[0])
-                self.dbs[year] = json.load(f)
-        
-        
 if __name__ == "__main__":
     with open("config.json", encoding="utf8") as f:
         config = json.load(f)
     
     downloader = Downloader(config['nvd_path'])
     downloader.update()
-    db = DataRefactor()
-    db.load()
     
     print("Done.")

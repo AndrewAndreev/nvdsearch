@@ -6,40 +6,41 @@
       <Extensions>qrc;*</Extensions>
       <ParseFiles>false</ParseFiles>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
-      <Extensions>qrc;*</Extensions>
-      <ParseFiles>false</ParseFiles>
-    </Filter>
-    <Filter Include="Generated Files">
-      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
-      <Extensions>moc;h;cpp</Extensions>
-      <SourceControlFiles>False</SourceControlFiles>
-    </Filter>
     <Filter Include="code">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <UniqueIdentifier>{1590bf9b-5dbd-45a2-9ca8-244c273c1419}</UniqueIdentifier>
     </Filter>
-    <Filter Include="qml">
-      <UniqueIdentifier>{68fda264-b96d-4cab-acec-a3fecee726c7}</UniqueIdentifier>
+    <Filter Include="code\ui">
+      <UniqueIdentifier>{d6e14e34-0897-4b73-8d39-08ed2f3d4cba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\data">
+      <UniqueIdentifier>{2ad216b5-1e27-479b-ac46-bc34d13d7c98}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\build\GeneratedFiles\qrc_res.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\nvdsearch\code\main.cpp">
       <Filter>code</Filter>
     </ClCompile>
+    <ClCompile Include="..\nvdsearch\code\data\cve.cpp">
+      <Filter>code\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nvdsearch\code\data\database.cpp">
+      <Filter>code\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nvdsearch\code\ui\cvewidget.cpp">
+      <Filter>code\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\nvdsearch\res.qrc">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
+    <ClInclude Include="..\nvdsearch\code\data\cve.h">
+      <Filter>code\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nvdsearch\code\data\database.h">
+      <Filter>code\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\nvdsearch\qml\main.qml">
-      <Filter>qml</Filter>
-    </None>
+    <QtMoc Include="..\nvdsearch\code\ui\cvewidget.h">
+      <Filter>code\ui</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>

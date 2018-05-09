@@ -6,7 +6,7 @@ AlwaysBreakTemplateDeclarations: false
 AlignEscapedNewlinesLeft: false
 AlignTrailingComments: true
 BreakBeforeBraces: Linux
-ColumnLimit: 120
+ColumnLimit: 80
 Cpp11BracedListStyle: false
 DerivePointerAlignment: false
 IncludeBlocks: Preserve

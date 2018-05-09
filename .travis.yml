@@ -7,7 +7,6 @@ before_install:
 
 install:
   - sudo apt-get -y install qt510-meta-minimal
-  - sudo apt-get -y install qt510quickcontrols2
 
 script:
   - source /opt/qt510/bin/qt510-env.sh

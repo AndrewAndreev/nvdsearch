@@ -1,8 +1,7 @@
 [![Build Status](https://travis-ci.com/AndrewAndreev/nvdsearch.svg?branch=master)](https://travis-ci.com/AndrewAndreev/nvdsearch)
 # nvdsearch
 
-GUI application to search National Vulnerability Database (NVD) locally for Vulnerabilities (CVEs). 
-Application is QML-based and requires Qt 5.10
+GUI application to search National Vulnerability Database (NVD) locally for Vulnerabilities (CVEs).
 
 ## Requirements
 * Qt 5.10
