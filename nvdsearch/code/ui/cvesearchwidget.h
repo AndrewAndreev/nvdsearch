@@ -9,7 +9,7 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include <QWidget>
-#include "data\database.h"
+#include "data/database.h"
 
 class CveSearchWidget : public QWidget
 {
