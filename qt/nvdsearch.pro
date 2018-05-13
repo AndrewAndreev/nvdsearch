@@ -4,11 +4,11 @@ include(../qt/nvdsearch.pri)
 
 TEMPLATE = app
 TARGET   = nvdsearch
-QT += core sql gui widgets
+QT += core sql gui widgets concurrent
 
 win32:DEFINES += _WINDOWS WIN64
 unix:DEFINES += UNIX
-DEFINES += _UNICODE QT_DLL QT_SQL_LIB QT_WIDGETS_LIB
+DEFINES += _UNICODE QT_DLL QT_SQL_LIB QT_WIDGETS_LIB QT_CONCURRENT_LIB
 
 INCLUDEPATH += . \
     ./../nvdsearch/code \

@@ -11,10 +11,12 @@ HEADERS += ../nvdsearch/code/data/cve.h \
     ../nvdsearch/code/data/database.h \
     ../nvdsearch/code/ui/cvewidget.h \
     ../nvdsearch/code/ui/cvesearchwidget.h \
+    ../nvdsearch/code/ui/loadingoverlaywidget.h \
     ../nvdsearch/code/ui/nvdsearchwidget.h
 SOURCES += ../nvdsearch/code/data/cve.cpp \
     ../nvdsearch/code/ui/cvewidget.cpp \
     ../nvdsearch/code/data/database.cpp \
     ../nvdsearch/code/main.cpp \
     ../nvdsearch/code/ui/cvesearchwidget.cpp \
+    ../nvdsearch/code/ui/loadingoverlaywidget.cpp \
     ../nvdsearch/code/ui/nvdsearchwidget.cpp

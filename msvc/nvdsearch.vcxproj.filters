@@ -35,6 +35,9 @@
     <ClCompile Include="..\nvdsearch\code\ui\nvdsearchwidget.cpp">
       <Filter>code\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\nvdsearch\code\ui\loadingoverlaywidget.cpp">
+      <Filter>code\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\nvdsearch\code\data\cve.h">
@@ -52,6 +55,9 @@
       <Filter>code\ui</Filter>
     </QtMoc>
     <QtMoc Include="..\nvdsearch\code\ui\nvdsearchwidget.h">
+      <Filter>code\ui</Filter>
+    </QtMoc>
+    <QtMoc Include="..\nvdsearch\code\ui\loadingoverlaywidget.h">
       <Filter>code\ui</Filter>
     </QtMoc>
   </ItemGroup>

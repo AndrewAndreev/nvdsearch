@@ -1,6 +1,7 @@
 #include <QAbstractItemView>
 #include <QHeaderView>
 #include <QVariant>
+#include <QtConcurrent>
 
 #include "cvesearchwidget.h"
 #include "cvewidget.h"
@@ -25,8 +26,10 @@ CveSearchWidget::CveSearchWidget( QWidget *parent, Database &database )
   _reset_filters_button = new QPushButton( this );
   _apply_filters_button = new QPushButton( this );
   _cve_table = new QTableWidget( this );
+  _loading_overlay = new LoadingOverlayWidget( this );
+  _loading_overlay->hide();
 
-  _search_field->setPlaceholderText( "CVE name filter" );
+  _search_field->setPlaceholderText( "Product name filter" );
 
   _cvssv_label->setText( "CVSS version" );
   _cvssv_combo->addItem( "Any", QVariant( CVSS::ANY ) );
@@ -86,6 +89,13 @@ CveSearchWidget::CveSearchWidget( QWidget *parent, Database &database )
   connect( _reset_filters_button, &QPushButton::clicked, this,
            &CveSearchWidget::resetFilters );
 
+  connect( _cve_table->selectionModel(), &QItemSelectionModel::selectionChanged,
+           this,
+           [this]( const QItemSelection &selected, const QItemSelection & ) {
+             auto *cve = &_found_cves[selected.indexes()[0].row()];
+             emit cve_selected( cve );
+           } );
+
   QHeaderView *header =
       qobject_cast<QTableView *>( _cve_table )->horizontalHeader();
   connect( header, &QHeaderView::sectionClicked, [this]( int index ) {
@@ -96,7 +106,6 @@ CveSearchWidget::CveSearchWidget( QWidget *parent, Database &database )
       _sort_order = Qt::AscendingOrder;
       _header_sort = index;
     }
-    setupTableHeaders();
     applyFilters();
   } );
 
@@ -120,46 +129,77 @@ void CveSearchWidget::resetFilters()
 
 void CveSearchWidget::applyFilters()
 {
-  _apply_filters_button->setEnabled( false );
-  auto cvss_filter = CVSS(
-      _cvssv_combo->itemData( _cvssv_combo->currentIndex() ).value<int>() );
-  _found_cves = _database.getCves(
-      _search_field->text(), _min_date_edit->dateTime(),
-      _max_date_edit->dateTime(), _lowest_sev_spin->value(),
-      _highest_sev_spin->value(), cvss_filter, "",
-      QString( "order by %1 %2" )
-          .arg( _db_columns[_header_sort] )
-          .arg( ( _sort_order == Qt::AscendingOrder ) ? "asc" : "desc" ) );
-  _cve_table->clear();
-  _cve_table->setRowCount( 0 );
-  setupTableHeaders();
-
-  for ( auto &cve : _found_cves ) {
-    _cve_table->insertRow( _cve_table->rowCount() );
-
-    _cve_table->setItem( _cve_table->rowCount() - 1, 0,
-                         new QTableWidgetItem( cve.cveName() ) );
-    _cve_table->setItem(
-        _cve_table->rowCount() - 1, 1,
-        new QTableWidgetItem( QString::number( cve.severity() ) ) );
-    _cve_table->setItem( _cve_table->rowCount() - 1, 2,
-                         new QTableWidgetItem( QString::number(
-                             static_cast<int>( cve.scoreVersion() ) ) ) );
-    _cve_table->setItem( _cve_table->rowCount() - 1, 3,
-                         new QTableWidgetItem( cve.publishedDate().toString(
-                             "yyyy-MM-dd HH:mm:ss" ) ) );
-
-    // Make row read-only.
-    for ( auto i = 0; i < _cve_table->columnCount(); ++i ) {
-      auto item = _cve_table->item( _cve_table->rowCount() - 1, i );
-      item->setFlags( item->flags() ^ Qt::ItemIsEditable );
-    }
+  // Set flag for one run in a queue to run after this one ends.
+  if ( _apply_watcher ) {
+    _is_apply_filters_run_in_queue = true;
+    return;
   }
 
-  _cve_table->resizeRowsToContents();
-  _cve_table->resizeColumnsToContents();
+  _apply_filters_button->setEnabled( false );
+  _loading_overlay->show();
 
-  _apply_filters_button->setEnabled( true );
+  _apply_watcher = new QFutureWatcher<void>( this );
+
+  // Run query in parallel thread.
+  QFuture<void> future = QtConcurrent::run( [this]() {
+    auto cvss_filter = CVSS(
+        _cvssv_combo->itemData( _cvssv_combo->currentIndex() ).value<int>() );
+    _found_cves = _database.getProductCves(
+        "%" + _search_field->text(), _min_date_edit->dateTime(),
+        _max_date_edit->dateTime(), _lowest_sev_spin->value(),
+        _highest_sev_spin->value(), cvss_filter,
+        QString( "order by %1 %2" )
+            .arg( _db_columns[_header_sort] )
+            .arg( ( _sort_order == Qt::AscendingOrder ) ? "asc" : "desc" ) );
+  } );
+
+  connect( _apply_watcher, &QFutureWatcher<void>::finished, this, [this]() {
+    _cve_table->clear();
+    _cve_table->setRowCount( 0 );
+    setupTableHeaders();
+
+    for ( auto &cve : _found_cves ) {
+      _cve_table->insertRow( _cve_table->rowCount() );
+
+      _cve_table->setItem( _cve_table->rowCount() - 1, 0,
+                           new QTableWidgetItem( cve.cveName() ) );
+      _cve_table->setItem(
+          _cve_table->rowCount() - 1, 1,
+          new QTableWidgetItem( QString::number( cve.severity() ) ) );
+      _cve_table->setItem( _cve_table->rowCount() - 1, 2,
+                           new QTableWidgetItem( QString::number(
+                               static_cast<int>( cve.scoreVersion() ) ) ) );
+      _cve_table->setItem( _cve_table->rowCount() - 1, 3,
+                           new QTableWidgetItem( cve.publishedDate().toString(
+                               "yyyy-MM-dd HH:mm:ss" ) ) );
+
+      // Make row read-only.
+      for ( auto i = 0; i < _cve_table->columnCount(); ++i ) {
+        auto item = _cve_table->item( _cve_table->rowCount() - 1, i );
+        item->setFlags( item->flags() ^ Qt::ItemIsEditable );
+      }
+    }
+
+    _cve_table->resizeRowsToContents();
+    _cve_table->resizeColumnsToContents();
+    _loading_overlay->hide();
+
+    _apply_watcher->deleteLater();
+    _apply_watcher = nullptr;
+    _apply_filters_button->setEnabled( true );
+
+    if ( _is_apply_filters_run_in_queue ) {
+      _is_apply_filters_run_in_queue = false;
+      applyFilters();
+    }
+  } );
+
+  _apply_watcher->setFuture( future );
+}
+
+void CveSearchWidget::resizeEvent( QResizeEvent * )
+{
+  _loading_overlay->setGeometry( _cve_table->geometry() );
 }
 
 void CveSearchWidget::setupTableHeaders()
@@ -173,6 +213,5 @@ void CveSearchWidget::setupTableHeaders()
   headers[_header_sort] +=
       "   " + ( ( _sort_order == Qt::AscendingOrder ) ? arrow_up : arrow_down );
   _cve_table->setHorizontalHeaderLabels( headers );
-  _cve_table->resizeColumnsToContents();
   _cve_table->horizontalHeader()->setStretchLastSection( true );
 }

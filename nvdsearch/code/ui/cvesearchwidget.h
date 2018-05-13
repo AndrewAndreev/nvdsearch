@@ -4,13 +4,18 @@
 #include <QComboBox>
 #include <QDateTimeEdit>
 #include <QDoubleSpinBox>
+#include <QFutureWatcher>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTableWidget>
 #include <QWidget>
+
 #include "data/database.h"
+#include "ui/loadingoverlaywidget.h"
+
+enum SearchBy { CVE_NAME = 0, PRODUCT_NAME = 1 };
 
 class CveSearchWidget : public QWidget
 {
@@ -24,8 +29,17 @@ public slots:
   void resetFilters();
   void applyFilters();
 
+signals:
+  void cve_selected( Cve * );
+
+protected:
+  void resizeEvent( QResizeEvent * ) override;
+
 private:
   void setupTableHeaders();
+
+  QFutureWatcher<void> *_apply_watcher = nullptr;
+  bool _is_apply_filters_run_in_queue = false;
 
   QGridLayout *_grid;
   QLineEdit *_search_field;
@@ -59,6 +73,8 @@ private:
 
   Database &_database;
   Cves _found_cves;
+
+  LoadingOverlayWidget *_loading_overlay;
 };
 
 #endif  // !CVESEARCHWIDGET_H
