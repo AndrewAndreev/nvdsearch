@@ -38,13 +38,23 @@ public:
                        qreal heighest_severity = -1.0,
                        CVSS severity_version = ( CVSS )0,
                        QString query_parameters = "", int limit = 1000 );
-  // selects CVEs on products of given vendor with given filters.
+  // selects CVEs on products of a given vendor with a given filters.
   Cves getVendorCves( QString vendor_name, QDateTime first_date = QDateTime(),
                       QDateTime last_date = QDateTime(),
                       qreal lowest_severity = -1.0,
                       qreal heighest_severity = -1.0,
                       CVSS severity_version = ( CVSS )0,
                       QString query_parameters = "", int limit = 1000 );
+  // selects vendor names of a given CVE id.
+  QStringList getCveVendors( QString cve_name, int limit = 1000 );
+  // selects product names of a given CVE id.
+  QStringList getCveProducts( QString cve_name, QString vendor_name,
+                              int limit = 1000 );
+  // selects affected versions of a given product and vendor by a given CVE id.
+  QStringList getCveProductVersions( QString cve_name, QString vendor_name,
+                                     QString product_name, int limit = 1000 );
+  // selects first CVE description where lang='en' if there is one.
+  QString getCveDescription( QString cve_name );
 
 private:
   // Functions to check validity of passed arguments.

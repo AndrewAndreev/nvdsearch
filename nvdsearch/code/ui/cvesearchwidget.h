@@ -22,7 +22,7 @@ class CveSearchWidget : public QWidget
   Q_OBJECT
 
 public:
-  explicit CveSearchWidget( QWidget *parent, Database &database );
+  CveSearchWidget( QWidget *parent, Database &database );
   ~CveSearchWidget();
 
 public slots:
@@ -30,7 +30,7 @@ public slots:
   void applyFilters();
 
 signals:
-  void cve_selected( Cve * );
+  void cveSelected( Cve );
 
 protected:
   void resizeEvent( QResizeEvent * ) override;

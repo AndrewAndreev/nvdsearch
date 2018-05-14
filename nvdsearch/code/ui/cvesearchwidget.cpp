@@ -92,8 +92,10 @@ CveSearchWidget::CveSearchWidget( QWidget *parent, Database &database )
   connect( _cve_table->selectionModel(), &QItemSelectionModel::selectionChanged,
            this,
            [this]( const QItemSelection &selected, const QItemSelection & ) {
-             auto *cve = &_found_cves[selected.indexes()[0].row()];
-             emit cve_selected( cve );
+             auto indexes = selected.indexes();
+             if ( indexes.size() == 0 ) return;
+             const auto &cve = _found_cves[indexes[0].row()];
+             emit cveSelected( cve );
            } );
 
   QHeaderView *header =
@@ -145,7 +147,7 @@ void CveSearchWidget::applyFilters()
     auto cvss_filter = CVSS(
         _cvssv_combo->itemData( _cvssv_combo->currentIndex() ).value<int>() );
     _found_cves = _database.getProductCves(
-        "%" + _search_field->text(), _min_date_edit->dateTime(),
+        "%" + _search_field->text() + "%", _min_date_edit->dateTime(),
         _max_date_edit->dateTime(), _lowest_sev_spin->value(),
         _highest_sev_spin->value(), cvss_filter,
         QString( "order by %1 %2" )

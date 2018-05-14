@@ -53,27 +53,122 @@ void SeverityCircle::paintEvent( QPaintEvent * )
 //==============================================================================
 // CveWidget
 //==============================================================================
-CveWidget::CveWidget( QWidget *parent ) : QWidget( parent )
+CveWidget::CveWidget( QWidget *parent, Database &database )
+    : QWidget( parent ), _database( database )
 {
   _grid = new QGridLayout( this );
-  _cve_name = new QLabel( this );
+  _cve_desc = new QLabel( this );
+  _nvd_link = new QLabel( this );
+  _severity_label = new QLabel( this );
   _severity_circle = new SeverityCircle( this );
+  _vendors_label = new QLabel( this );
+  _vendors_list = new QListWidget( this );
+  _selected_vendor_label = new QLabel( this );
+  _products_list = new QListWidget( this );
+  _selected_product_label = new QLabel( this );
+  _versions_list = new QListWidget( this );
 
-  _grid->addWidget( _cve_name, 0, 0, 1, 2, Qt::AlignLeft );
-  _grid->addWidget( _severity_circle, 0, 2 );
+  _nvd_link->setTextFormat( Qt::RichText );
+  _nvd_link->setTextInteractionFlags( Qt::TextBrowserInteraction );
+  _nvd_link->setOpenExternalLinks( true );
+
+  _cve_desc->setWordWrap( true );
+  _vendors_label->setWordWrap( true );
+  _selected_vendor_label->setWordWrap( true );
+  _selected_product_label->setWordWrap( true );
+
+  _grid->setRowStretch( 1, 1 );
+  _grid->setRowStretch( 3, 2 );
+  _grid->setColumnStretch( 0, 1 );
+  _grid->setColumnStretch( 1, 2 );
+  _grid->setColumnStretch( 2, 1 );
+
+  _grid->addWidget( _cve_desc, 0, 0, 2, 2, Qt::AlignLeft );
+  _grid->addWidget( _nvd_link, 2, 0, 1, 2, Qt::AlignLeft );
+  _grid->addWidget( _severity_circle, 0, 2, Qt::AlignCenter );
+  _grid->addWidget( _severity_label, 1, 2, Qt::AlignHCenter | Qt::AlignTop );
+
+  _vendors_label->setText( "Vendors" );
+
+  _grid->addWidget( _vendors_label, 3, 0, Qt::AlignBottom );
+  _grid->addWidget( _selected_vendor_label, 3, 1, Qt::AlignBottom );
+  _grid->addWidget( _selected_product_label, 3, 2, Qt::AlignBottom );
+
+  _grid->addWidget( _vendors_list, 4, 0 );
+  _grid->addWidget( _products_list, 4, 1 );
+  _grid->addWidget( _versions_list, 4, 2 );
 
   setLayout( _grid );
+
+  connect( _vendors_list, &QListWidget::itemSelectionChanged, this, [this]() {
+    _products_list->clear();
+    _versions_list->clear();
+    auto selected_items = _vendors_list->selectedItems();
+    if ( selected_items.size() == 0 )
+      return;
+    const auto &cve_name = _cve.cveName();
+    // Get first selected.
+    const auto &selected_vendor = selected_items[0]->text();
+    _selected_vendor_label->setText(
+        QString( "%1 products" ).arg( selected_vendor ) );
+    _products_list->addItems(
+        _database.getCveProducts( cve_name, selected_vendor ) );
+  } );
+  connect( _products_list, &QListWidget::itemSelectionChanged, this, [this]() {
+    _versions_list->clear();
+    auto selected_vendors = _vendors_list->selectedItems();
+    auto selected_products = _products_list->selectedItems();
+    if ( selected_vendors.size() == 0 || selected_products.size() == 0 )
+      return;
+    const auto &cve_name = _cve.cveName();
+    // Get first selected.
+    const auto &selected_vendor = selected_vendors[0]->text();
+    const auto &selected_product = selected_products[0]->text();
+
+    _selected_vendor_label->setText(
+        QString( "%1 products" ).arg( selected_vendor ) );
+    _selected_product_label->setText(
+        QString( "%1 versions" ).arg( selected_product ) );
+
+    _versions_list->addItems( _database.getCveProductVersions(
+        cve_name, selected_vendor, selected_product ) );
+  } );
 }
 
 CveWidget::~CveWidget()
 {
 }
 
-void CveWidget::setCve( Cve *cve )
+void CveWidget::setCve( const Cve &cve )
 {
   _cve = cve;
-  _severity_circle->setSeverity( _cve->severity() );
-  _cve_name->setText( _cve->cveName() );
+  const auto &cve_name = _cve.cveName();
+  _severity_circle->setSeverity( _cve.severity() );
+  _cve_desc->setText( "Description:\n" +
+                      _database.getCveDescription( cve_name ) );
+  _nvd_link->setText( QString( "<a "
+                               "href=\"https://nvd.nist.gov/vuln/detail/%1"
+                               "\">https://nvd.nist.gov/vuln/detail/%1</a>" )
+                          .arg( cve_name ) );
+
+  QString severity_version;
+  if ( _cve.scoreVersion() == CVSS::V2 )
+    severity_version = "CVSS V2";
+  else
+    severity_version = "CVSS V3";
+  _severity_label->setText( severity_version );
+
+  // Filling lists up.
+  _selected_vendor_label->setText( "Products" );
+  _selected_product_label->setText( "Versions" );
+
+  _vendors_list->clear();
+  _vendors_list->addItems( _database.getCveVendors( cve_name ) );
+}
+
+Cve *CveWidget::cve()
+{
+  return &_cve;
 }
 
 void CveWidget::paintEvent( QPaintEvent * )

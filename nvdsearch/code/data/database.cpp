@@ -140,7 +140,7 @@ Cves Database::getProductCves( QString product_name, QDateTime first_date,
 {
   auto query_t = QString(
       "inner join product_cve on cve.id = product_cve.id_cve\n"
-      "inner join product on product_cve.id_product = product.id" );
+      "inner join product on product_cve.id_product = product.id\n" );
   auto query_p = QString( "and product.product_name like '%1'\n%2" )
                      .arg( product_name )
                      .arg( query_parameters );
@@ -155,13 +155,163 @@ Cves Database::getVendorCves( QString vendor_name, QDateTime first_date,
 {
   auto query_t = QString(
       "inner join product_cve on cve.id = product_cve.id_cve\n"
-      "inner join product on product_cve.id_product = product.id"
+      "inner join product on product_cve.id_product = product.id\n"
       "inner join vendor on product.id_vendor = vendor.id\n" );
   auto query_p = QString( "and product.product_name like '%1'\n%2" )
                      .arg( vendor_name )
                      .arg( query_parameters );
   return getCves( "", first_date, last_date, lowest_severity, heighest_severity,
                   severity_version, query_t, query_p, limit );
+}
+
+QStringList Database::getCveVendors( QString cve_name, int limit )
+{
+  QSqlDatabase db = QSqlDatabase::database( _connection_name );
+  if ( isValid() == false )
+    return QStringList();
+
+  QSqlQuery query( db );
+  auto s_query =
+      QString(
+          "select distinct vendor_name from vendor\n"
+          "inner join product on vendor.id = product.id_vendor\n"
+          "inner join product_cve on product.id = product_cve.id_product\n"
+          "inner join cve on product_cve.id_cve = cve.id\n"
+          "where\n"
+          "cve_name = '%1'\n"
+          "limit %2;\n" )
+          .arg( cve_name )
+          .arg( limit );
+  query.prepare( s_query );
+
+  if ( query.exec() == false ) {
+    qDebug() << query.lastError();
+    return QStringList();
+  }
+
+  QStringList vendor_list;
+  while ( query.next() ) {
+    auto vendor_name = query.value( "vendor_name" ).toString();
+    vendor_list.append( vendor_name );
+  }
+
+  return vendor_list;
+}
+
+QStringList Database::getCveProducts( QString cve_name, QString vendor_name,
+                                      int limit )
+{
+  QSqlDatabase db = QSqlDatabase::database( _connection_name );
+  if ( isValid() == false )
+    return QStringList();
+
+  QSqlQuery query( db );
+  auto s_query =
+      QString(
+          "select distinct product_name from product\n"
+          "inner join vendor on product.id_vendor = vendor.id\n"
+          "inner join product_cve on product.id = product_cve.id_product\n"
+          "inner join cve on product_cve.id_cve = cve.id\n"
+          "where\n"
+          "cve_name = '%1'\n"
+          "and vendor_name = '%2'\n"
+          "limit %3;\n" )
+          .arg( cve_name )
+          .arg( vendor_name )
+          .arg( limit );
+  query.prepare( s_query );
+
+  if ( query.exec() == false ) {
+    qDebug() << query.lastError();
+    return QStringList();
+  }
+
+  QStringList product_list;
+  while ( query.next() ) {
+    auto product_name = query.value( "product_name" ).toString();
+    product_list.append( product_name );
+  }
+
+  return product_list;
+}
+
+QStringList Database::getCveProductVersions( QString cve_name,
+                                             QString vendor_name,
+                                             QString product_name, int limit )
+{
+  QSqlDatabase db = QSqlDatabase::database( _connection_name );
+  if ( isValid() == false )
+    return QStringList();
+
+  QSqlQuery query( db );
+  auto s_query =
+      QString(
+          "select distinct version_value from version\n"
+          "inner join product_cve_version on version.id = "
+          "product_cve_version.id_version\n"
+          "inner join product_cve on product_cve_version.id_product_cve = "
+          "product_cve.id\n"
+          "inner join product on product_cve.id_product = product.id\n"
+          "inner join vendor on product.id_vendor = vendor.id\n"
+          "inner join cve on product_cve.id_cve = cve.id\n"
+          "where \n"
+          "cve_name = '%1'\n"
+          "and vendor_name = '%2'\n"
+          "and product_name = '%3'\n"
+          "limit %4;\n" )
+          .arg( cve_name )
+          .arg( vendor_name )
+          .arg( product_name )
+          .arg( limit );
+  query.prepare( s_query );
+
+  if ( query.exec() == false ) {
+    qDebug() << query.lastError();
+    return QStringList();
+  }
+
+  QStringList version_list;
+  while ( query.next() ) {
+    auto version_value = query.value( "version_value" ).toString();
+    version_list.append( version_value );
+  }
+
+  return version_list;
+}
+
+QString Database::getCveDescription( QString cve_name )
+{
+  QSqlDatabase db = QSqlDatabase::database( _connection_name );
+  if ( isValid() == false )
+    return QString();
+
+  QSqlQuery query( db );
+  auto s_query = QString(
+                     "select `value`, `lang` from description\n"
+                     "inner join cve on description.id_cve = cve.id\n"
+                     "where\n"
+                     "cve_name = '%1'\n"
+                     "limit %2;\n" )
+                     .arg( cve_name )
+                     .arg( 1000 );
+  query.prepare( s_query );
+
+  if ( query.exec() == false ) {
+    qDebug() << query.lastError();
+    return QString();
+  }
+
+  QString description;
+  while ( query.next() ) {
+    auto value = query.value( "value" ).toString();
+    auto lang = query.value( "lang" ).toString();
+    if ( lang == "en" ) {
+      description = std::move( value );
+      break;
+    }
+  }
+
+  return description;
 }
 
 bool Database::isValidData( QDateTime datetime ) const

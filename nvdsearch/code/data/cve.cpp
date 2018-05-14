@@ -1,9 +1,17 @@
 #include "cve.h"
 
+Cve::Cve()
+    : _id_cve( 0 ),
+      _is_valid( false ),
+      _severity( 0.0 ),
+      _hasAdditional( false )
+{
+}
+
 Cve::Cve( int id_cve, QString cve_name, qreal severity, CVSS score_version,
           QDateTime published_date, QDateTime last_modified_date )
     : _id_cve( id_cve ),
-      _isValid( true ),
+      _is_valid( true ),
       _cve_name( std::move( cve_name ) ),
       _severity( severity ),
       _score_version( score_version ),
@@ -15,7 +23,7 @@ Cve::Cve( int id_cve, QString cve_name, qreal severity, CVSS score_version,
 
 Cve::Cve( const Cve &rhs )
     : _id_cve( rhs._id_cve ),
-      _isValid( rhs._isValid ),
+      _is_valid( rhs._is_valid ),
       _cve_name( rhs._cve_name ),
       _severity( rhs._severity ),
       _score_version( rhs._score_version ),
@@ -30,7 +38,7 @@ Cve::Cve( const Cve &rhs )
 
 Cve::Cve( Cve &&rhs )
     : _id_cve( rhs._id_cve ),
-      _isValid( rhs._isValid ),
+      _is_valid( rhs._is_valid ),
       _cve_name( std::move( rhs._cve_name ) ),
       _severity( rhs._severity ),
       _score_version( rhs._score_version ),
@@ -49,7 +57,7 @@ Cve::~Cve()
 
 bool Cve::isValid() const
 {
-  return _isValid;  // Should return false on zero initialization if so happens.
+  return _is_valid;
 }
 
 bool Cve::hasAdditional() const
@@ -110,4 +118,20 @@ QStringList Cve::vendorNames() const
 QStringList Cve::references() const
 {
   return _references;
+}
+
+Cve &Cve::operator=( const Cve &rhs )
+{
+  _id_cve = rhs._id_cve;
+  _is_valid = rhs._is_valid;
+  _cve_name = rhs._cve_name;
+  _severity = rhs._severity;
+  _score_version = rhs._score_version;
+  _published_date = rhs._published_date;
+  _last_modified_date = rhs._last_modified_date;
+  _hasAdditional = rhs._hasAdditional;
+  _product_names = rhs._product_names;
+  _vendor_names = rhs._vendor_names;
+  _references = rhs._references;
+  return *this;
 }

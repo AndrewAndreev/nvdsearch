@@ -39,10 +39,7 @@ void SpinnerIndicator::paintEvent( QPaintEvent * )
   QPen pen( circle_color, pen_width, Qt::SolidLine, Qt::FlatCap,
             Qt::MiterJoin );
   painter.setPen( pen );
-  // Recalculate angle.
-  // angle (in degree)
-  // [0, 270] => ease in out cubic
-  // [270, 360] => linear
+  // Recalculate angle and offset.
   auto t = current_time.toMSecsSinceEpoch() % qint64( _animation_speed * 1000 );
   auto nt = t / qreal( _animation_speed * 1000 - 1 );  // Normalized time [0-1].
   auto ease_in_out_cubic = []( qreal t ) {

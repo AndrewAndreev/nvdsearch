@@ -9,9 +9,9 @@ enum CVSS { ANY = 0, V2 = 2, V3 = 3 };
 class Cve
 {
 public:
-  explicit Cve( int id_cve, QString cve_name, qreal severity,
-                CVSS score_version, QDateTime published_date,
-                QDateTime last_modified_date );
+  Cve();
+  Cve( int id_cve, QString cve_name, qreal severity, CVSS score_version,
+       QDateTime published_date, QDateTime last_modified_date );
   Cve( const Cve &rhs );
   Cve( Cve &&rhs );
   ~Cve();
@@ -32,10 +32,12 @@ public:
   QStringList vendorNames() const;
   QStringList references() const;
 
+  Cve &operator=( const Cve &rhs );
+
 private:
   // Basic CVE info.
   int _id_cve;
-  bool _isValid;  // Tracks status after seccessful initialization.
+  bool _is_valid;
 
   QString _cve_name;
   qreal _severity;

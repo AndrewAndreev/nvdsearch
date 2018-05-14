@@ -19,7 +19,7 @@ protected:
 
 private:
   QTimer _update_timer;
-  qreal _animation_speed;  // seconds on one animation cycle.
+  qreal _animation_speed;  // Seconds on for one animation cycle.
   int _angle;              // Starting point of a circle.
   int _offset;             // Back point of a circle.
 };
