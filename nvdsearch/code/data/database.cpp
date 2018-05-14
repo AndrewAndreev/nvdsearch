@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonParseError>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QString>
@@ -27,14 +28,37 @@ bool Database::setConnection()
 {
   QFile config_file( "config.json" );
   if ( config_file.open( QIODevice::ReadOnly | QIODevice::Text ) == false ) {
-    qDebug() << "config.json file must present in working directory.";
+    _last_error = "There is no config.json file in working directory.";
+    qDebug() << _last_error;
     return false;
   }
 
   QTextStream in( &config_file );
 
+  QJsonParseError err;
   QJsonObject config =
-      QJsonDocument::fromJson( in.readAll().toUtf8() ).object();
+      QJsonDocument::fromJson( in.readAll().toUtf8(), &err ).object();
+  if ( err.error != QJsonParseError::NoError ) {
+    _last_error = err.errorString();
+    qDebug() << _last_error;
+    return false;
+  }
+  if ( config.contains( "hostname" ) == false ||
+       config.contains( "dbname" ) == false ||
+       config.contains( "username" ) == false ||
+       config.contains( "password" ) == false ) {
+    _last_error =
+        "Wrong config.json file format. Example:\n"
+        "{\n"
+        "  \"hostname\": \"127.0.0.1\",\n"
+        "  \"dbname\": \"nvdb\",\n"
+        "  \"username\": \"qt_user\",\n"
+        "  \"password\": \"0000\"\n"
+        "}\n";
+    qDebug() << _last_error;
+    return false;
+  }
+
   QString hostname = config["hostname"].toString();
   QString dbname = config["dbname"].toString();
   QString username = config["username"].toString();
@@ -52,10 +76,17 @@ bool Database::setConnection( const QString &hostname, const QString &dbname,
   db.setUserName( username );
   db.setPassword( password );
 
-  if ( isValid() == false )
-    qDebug() << db.lastError().text();
+  if ( isValid() == false ) {
+    _last_error = db.lastError().text();
+    qDebug() << _last_error;
+  }
 
   return isValid();
+}
+
+QString Database::lastError() const
+{
+  return _last_error;
 }
 
 Cves Database::getCves( QString cve_name_filter, QDateTime first_date,

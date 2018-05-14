@@ -1,8 +1,15 @@
+#include <QMessageBox>
+
 #include "nvdsearchwidget.h"
 
 NvdSearchWidget::NvdSearchWidget( QWidget *parent ) : QWidget( parent )
 {
-  _database.setConnection();
+  auto is_connected = _database.setConnection();
+  if ( is_connected == false ) {
+    QMessageBox::critical( this, "Database error", _database.lastError(),
+                           QMessageBox::Ok );
+    throw -1;
+  }
 
   _tabs = new QTabWidget( this );
   _layout = new QGridLayout( this );

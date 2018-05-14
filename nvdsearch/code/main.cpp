@@ -6,8 +6,12 @@ int main( int argc, char *argv[] )
   QApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
   QApplication app( argc, argv );
 
-  NvdSearchWidget widget;
-  widget.show();
+  try {
+    NvdSearchWidget widget;
 
-  return app.exec();
+    widget.show();
+    return app.exec();
+  } catch ( int e ) {
+    return e;
+  }
 }

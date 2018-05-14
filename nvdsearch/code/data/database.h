@@ -18,6 +18,8 @@ public:
   bool setConnection( const QString &hostname, const QString &dbname,
                       const QString &username, const QString &password );
 
+  QString lastError() const;
+
   // selects CVEs with given filters.
   // Skips filter if invalid value is provided.
   // qreal range = [0.0, 10.0]
@@ -63,6 +65,7 @@ private:
   bool isValidData( CVSS severity_version ) const;
 
   QString _connection_name;
+  QString _last_error;
 };
 
 #endif  // !DATABASE_H

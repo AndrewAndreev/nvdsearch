@@ -52,7 +52,10 @@ CveSearchWidget::CveSearchWidget( QWidget *parent, Database &database )
   _highest_sev_spin->setDecimals( 1 );
 
   _min_date_edit->setMinimumDate( QDate( 2002, 1, 1 ) );
+  _min_date_edit->setMaximumDate(
+      QDateTime::currentDateTimeUtc().addDays( 1 ).date() );
   _min_date_edit->setDisplayFormat( "yyyy-MM-dd HH:mm:ss" );
+  _max_date_edit->setMinimumDate( QDate( 2002, 1, 1 ) );
   _max_date_edit->setMaximumDate(
       QDateTime::currentDateTimeUtc().addDays( 1 ).date() );
   _max_date_edit->setDisplayFormat( "yyyy-MM-dd HH:mm:ss" );
@@ -93,7 +96,8 @@ CveSearchWidget::CveSearchWidget( QWidget *parent, Database &database )
            this,
            [this]( const QItemSelection &selected, const QItemSelection & ) {
              auto indexes = selected.indexes();
-             if ( indexes.size() == 0 ) return;
+             if ( indexes.size() == 0 )
+               return;
              const auto &cve = _found_cves[indexes[0].row()];
              emit cveSelected( cve );
            } );
@@ -117,6 +121,12 @@ CveSearchWidget::CveSearchWidget( QWidget *parent, Database &database )
 
 CveSearchWidget::~CveSearchWidget()
 {
+  if ( _apply_watcher ) {
+    _apply_watcher->cancel();
+    _apply_watcher->waitForFinished();
+    _apply_watcher->deleteLater();
+    _apply_watcher = nullptr;
+  }
 }
 
 void CveSearchWidget::resetFilters()
