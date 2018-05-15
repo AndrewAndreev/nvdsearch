@@ -103,6 +103,8 @@ CveWidget::CveWidget( QWidget *parent, Database &database )
   connect( _vendors_list, &QListWidget::itemSelectionChanged, this, [this]() {
     _products_list->clear();
     _versions_list->clear();
+    _selected_vendor_label->setText( "Products" );
+    _selected_product_label->setText( "Versions" );
     auto selected_items = _vendors_list->selectedItems();
     if ( selected_items.size() == 0 )
       return;
@@ -116,6 +118,7 @@ CveWidget::CveWidget( QWidget *parent, Database &database )
   } );
   connect( _products_list, &QListWidget::itemSelectionChanged, this, [this]() {
     _versions_list->clear();
+    _selected_product_label->setText( "Versions" );
     auto selected_vendors = _vendors_list->selectedItems();
     auto selected_products = _products_list->selectedItems();
     if ( selected_vendors.size() == 0 || selected_products.size() == 0 )

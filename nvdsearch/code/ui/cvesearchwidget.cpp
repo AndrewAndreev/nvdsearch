@@ -134,9 +134,11 @@ void CveSearchWidget::resetFilters()
   _min_date_edit->setDateTime(
       QDateTime::fromString( "2002-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss" ) );
   _max_date_edit->setDate( QDateTime::currentDateTimeUtc().date() );
+  _max_date_edit->setTime( QTime( 0, 0 ) );
   _search_field->setText( "" );
   _lowest_sev_spin->setValue( 0.0 );
   _highest_sev_spin->setValue( 10.0 );
+  _cvssv_combo->setCurrentIndex( 0 );
 }
 
 void CveSearchWidget::applyFilters()

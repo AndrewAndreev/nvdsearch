@@ -52,23 +52,23 @@ void SpinnerIndicator::paintEvent( QPaintEvent * )
   auto ease_time_map = []( qreal t, qreal a, qreal b ) {
     return ( t - a ) / ( b - a );
   };
+  // t [0, 1] => [a, b] * 16
+  auto deg_scale_map = []( qreal t, int a, int b ) {
+    return int( t * ( b - a ) + a ) * 16;
+  };
   auto linear = []( qreal t ) { return t; };
   auto min_offset = 5;    // deg.
   auto max_offset = 187;  // deg.
   auto transition_point = 270.0 / 360.0;
   if ( nt < transition_point ) {  // until 270 deg.
-    _offset =
-        ( linear( ease_time_map( nt, 0, transition_point ) ) * max_offset +
-          min_offset ) *
-        16;
+    _offset = deg_scale_map( linear( ease_time_map( nt, 0, transition_point ) ),
+                             min_offset, max_offset );
   } else {  // after 270 deg.
-    _offset = ( ( 1.0 - ease_in_out_cubic(
-                            ease_time_map( nt, transition_point, 1.0 ) ) ) *
-                    ( max_offset - min_offset ) +
-                min_offset ) *
-              16;
+    _offset = deg_scale_map(
+        1.0 - ease_in_out_cubic( ease_time_map( nt, transition_point, 1.0 ) ),
+        min_offset, max_offset );
   }
-  _angle = ease_out_quad( nt ) * 360 * 16;
+  _angle = deg_scale_map( ease_out_quad( nt ), 0, 360 );
   // Negative angle for clockwise rotation.
   painter.drawArc( rect, -_angle, _offset );
 }
