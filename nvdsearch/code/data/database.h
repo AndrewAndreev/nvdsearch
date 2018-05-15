@@ -25,8 +25,8 @@ public:
   // qreal range = [0.0, 10.0]
   // QDateTime = [2002 year, present day]
   // CVSS = CVSS::V2, CVSS::V3
-  // query_tables and query_parameters inserts into query before and after
-  // where statement accordingly.
+  // strings `query_tables` and `query_parameters` are inserted
+  // into query statement before and after command `where`.
   Cves getCves( QString cve_name_filter = "",
                 QDateTime first_date = QDateTime(),
                 QDateTime last_date = QDateTime(), qreal lowest_severity = -1.0,
